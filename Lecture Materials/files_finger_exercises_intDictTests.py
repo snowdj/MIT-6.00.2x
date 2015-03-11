@@ -83,3 +83,18 @@ def main():
     print hash_table.getValue(15)
 
 
+def find99():
+    low = 0
+    high = 365
+    epsilon = 0.001
+    ans = (high + low)/2
+    prob = collision_prob(365, ans)
+    while abs(.99 - prob) >= epsilon:
+        if prob < .99:
+            low = ans
+        else:
+            high = ans
+        ans = (high + low)/2
+        prob = collision_prob(365, ans)
+    print('max class size is ' + str(ans) + ' with probability '), prob
+    return
