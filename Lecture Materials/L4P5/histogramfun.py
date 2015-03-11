@@ -25,6 +25,21 @@ def plotVowelProportionHistogram(wordList, numBins=15):
     Plots a histogram of the proportion of vowels in each word in wordList
     using the specified number of bins in numBins
     """
+    VOWELS="AEIOUaeiou"
+    propVowels = []
+    for word in wordList:
+        totVowels = 0
+        for i in range(len(word)):
+            if word[i] in VOWELS:
+                totVowels += 1
+        propVowels.append(totVowels/float(len(word)))
+    
+    pylab.hist(propVowels, bins = numBins)
+    xmin, xmax = pylab.xlim()
+    ymin, ymax = pylab.ylim()
+    pylab.xlabel('Proportion of Vowels')
+    pylab.ylabel('Frequency')
+    pylab.show()
     
 
 if __name__ == '__main__':
