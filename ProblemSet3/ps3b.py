@@ -58,7 +58,10 @@ class SimpleVirus(object):
         False.
         """
 
-        # TODO
+        if random.random() < self.clearProb:
+            return True
+        else:
+            return False
 
     
     def reproduce(self, popDensity):
@@ -81,7 +84,12 @@ class SimpleVirus(object):
         NoChildException if this virus particle does not reproduce.               
         """
 
-        # TODO
+        prob = self.maxBirthProb * (1 - popDensity)
+        if random.random() < prob:
+            return SimpleVirus(self.maxBirthProb, self.clearProb)
+        else:
+            raise NoChildException
+        
 
 
 
@@ -102,20 +110,22 @@ class Patient(object):
         maxPop: the maximum virus population for this patient (an integer)
         """
 
-        # TODO
+        self.maxPop = maxPop
+        self.viruses = viruses
+        self.popDensity = len(viruses)/float(maxPop)
 
     def getViruses(self):
         """
         Returns the viruses in this Patient.
         """
-        # TODO
+        return self.viruses
 
 
     def getMaxPop(self):
         """
         Returns the max population.
         """
-        # TODO
+        return self.maxPop
 
 
     def getTotalPop(self):
@@ -124,7 +134,7 @@ class Patient(object):
         returns: The total virus population (an integer)
         """
 
-        # TODO        
+        return len(self.viruses)        
 
 
     def update(self):
@@ -146,10 +156,23 @@ class Patient(object):
         integer)
         """
 
-        # TODO
-
-
-
+        # survival of each virus
+        for vir in self.viruses:
+            if vir.doesClear():
+                self.viruses.remove(vir)
+        
+        # Calculate the new population density
+        self.popDensity = len(self.viruses)/float(self.maxPop)
+        
+        # Determine virus reproduction
+        for vir in self.viruses:
+            try:
+                self.viruses.append(vir.reproduce(self.popDensity))
+            except NoChildException:
+                continue
+        
+        return len(self.viruses)
+            
 #
 # PROBLEM 3
 #
