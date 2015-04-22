@@ -40,7 +40,7 @@ class Point(object):
         return self.name        
     
 class Cluster(object):
-    """ A Cluster is defines as a set of elements, all having 
+    """ A Cluster is defined as a set of elements, all having 
     a particular type """
     def __init__(self, points, pointType):
         """ Elements of a cluster are saved in self.points
@@ -51,23 +51,45 @@ class Cluster(object):
         """ Returns the float distance between the points that 
         are closest to each other, where one point is from 
         self and the other point is from other. Uses the 
-        Euclidean dist between 2 points, defined in Point."""
-        # TO DO
-        pass
+        Euclidean dist between 2 points, defined in Point."""      
+        result = self.points[0].distance(other.points[0])
+        # Loop over each point in each cluster to compute all distances between
+        # them to find the minimum such distance
+        for a in self.members():
+            for b in other.members():
+                dist = a.distance(b)
+                if dist <= result:
+                    result = dist
+        return result   
     def maxLinkageDist(self, other):
         """ Returns the float distance between the points that 
         are farthest from each other, where one point is from 
         self and the other point is from other. Uses the 
-        Euclidean dist between 2 points, defined in Point."""
-        # TO DO
-        pass
+        Euclidean dist between 2 points, defined in Point."""    
+        result = 0.0
+        distances = []
+        # Loop over each point in each cluster to compute all distances between
+        # them to find the maximum such distance
+        for a in self.members():
+            for b in other.members():
+                distances.append(a.distance(b))
+        result = max(distances)
+        return result
     def averageLinkageDist(self, other):
         """ Returns the float average (mean) distance between all 
         pairs of points, where one point is from self and the 
         other point is from other. Uses the Euclidean dist 
         between 2 points, defined in Point."""
-        # TO DO
-        pass
+        result = 0.0
+        numA = len(self.points)
+        numB = len(other.points)
+        # Loop over each point in each cluster to compute all distances between
+        # them to find the maximum such distance
+        for a in self.members():
+            for b in other.members():
+                result += a.distance(b)
+        result = result/(numA*numB)        
+        return result
     def members(self):
         for p in self.points:
             yield p
@@ -115,20 +137,36 @@ class ClusterSet(object):
         """ Assumes clusters c1 and c2 are in self
         Adds to self a cluster containing the union of c1 and c2
         and removes c1 and c2 from self """
-        # TO DO
-        pass
+        combined = c1
+        for mem in c2.members():
+            if not c1.isIn(mem):
+                combined.points.append(mem) 
+        self.members.remove(c1)
+        self.members.remove(c2)
+        self.add(combined)
     def findClosest(self, linkage):
         """ Returns a tuple containing the two most similar 
         clusters in self
         Closest defined using the metric linkage """
-        # TO DO
-        pass
+        c1 = self.getClusters()[0]
+        c2 = self.getClusters()[-1]
+        minDist = linkage(c1, c2)
+        for a in self.getClusters():
+            for b in self.getClusters():
+                if a != b:
+                    dist = linkage(a, b)
+                    if dist <= minDist:
+                        minDist = dist
+                        c1 = a
+                        c2 = b
+        return (c2, c1)                    
     def mergeOne(self, linkage):
         """ Merges the two most simililar clusters in self
         Similar defined using the metric linkage
         Returns the clusters that were merged """
-        # TO DO
-        pass
+        c1, c2 = self.findClosest(linkage)
+        self.mergeClusters(c1, c2)
+        return(c1, c2)
     def numClusters(self):
         return len(self.members)
     def toStr(self):
@@ -219,12 +257,17 @@ def hCluster(points, linkage, numClusters, printHistory):
     return cS
 
 def test():
-    points = buildCityPoints('cityTemps.txt', False)
-    hCluster(points, Cluster.singleLinkageDist, 10, False)
+    #points = buildCityPoints('cityTemps.txt', False)
+    #hCluster(points, Cluster.singleLinkageDist, 5, False)
     #points = buildCityPoints('cityTemps.txt', True)
     #hCluster(points, Cluster.maxLinkageDist, 10, False)
     #hCluster(points, Cluster.averageLinkageDist, 10, False)
-    #hCluster(points, Cluster.singleLinkageDist, 10, False)
+    #hCluster(points, Cluster.singleLinkageDist, 5, False)
+    
+    points = buildCityPoints('test.txt', False)
+    hCluster(points, Cluster.singleLinkageDist, 3, False)
+    hCluster(points, Cluster.maxLinkageDist, 3, True)
+    hCluster(points, Cluster.averageLinkageDist, 3, False)
 
 #test()
 
